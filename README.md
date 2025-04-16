@@ -1,2 +1,5 @@
 # Saibai-Island-Weather-Processor
-This is a prototype of an early warning system that I created for the Engineers Without Borders challenge.
+
+I created this project as a Software Engineering student for my subject, Introduction to Engineering Projects. During my work on the Engineers Without Borders component of this subject, I was required to prototype an ICT system that would deliver early warning messages to a remote Indigenous community. 
+
+In my group we decided on a system of weather buoys that would transmit early warning data to a centralised monitoring centre on Saibai Island, where the data would be analysed. The code above is a prototype of the software that would analyse the buoy data. Currently, my prototype can analyse weather data, enable access to previous years' data, and provide access to warnings for the community. It also incorporates a Tkinter user interface, to increase usability. During the process of creating this project I learned a great deal about Object Oriented Programming, version control, and the importance of project management tools such as Gantt Charts and log books.
