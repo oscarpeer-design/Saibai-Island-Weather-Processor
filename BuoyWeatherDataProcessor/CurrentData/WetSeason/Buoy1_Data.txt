@@ -1,0 +1,12 @@
+buoyNum:1
+location:-8.7*S,143.5*E
+waveHeight:1.7
+airTemp:30
+waterTemp:28
+humidity:93
+rainfall(mm):14.0
+pastAirPressure:1007
+currentAirPressure:1010
+windDir:ESE
+windSpeed:20
+batteryHealth:89
