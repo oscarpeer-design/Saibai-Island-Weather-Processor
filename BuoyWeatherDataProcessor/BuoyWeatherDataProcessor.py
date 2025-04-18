@@ -1,5 +1,4 @@
 import math
-from re import LOCALE
 import tkinter as tk
 from tkinter import *
 from tkinter import Listbox
@@ -467,7 +466,6 @@ class StormDetermination():
     def determineStormLikelihood(self, dewPoint, liftedIndex, pressureTendency, windShear):
         #Here we combine measurements of dew point, lifted index, pressure tendency, and wind shear to heuristically determine the relative probability of a storm.
         stormLikelihood = ""
-        print(windShear)
         if dewPoint > 21 and liftedIndex < -6.7 and pressureTendency < -2 and windShear > 0.02:
             stormLikelihood = "high"
         elif dewPoint > 16 and liftedIndex < -3.3 and pressureTendency < -1 or windShear > 0.01:
@@ -849,12 +847,22 @@ class UserInterface():
         buoysList = Main.getBuoysList()
 
         buoyIdx = 0
-        while buoyIdx < len(buoysList) and hazardLvl == "low":
+        hazardNum = 0
+        greatestHazardNum = 0
+        lvlToNum = {"low":0, "moderate":1, "high":2}  
+        numToLvl = {0:"low", 1:"moderate", 2:"high"}
+
+        while buoyIdx < len(buoysList):
             buoy = buoysList[buoyIdx]
             storm = StormDetermination(buoy)
             hazardLvl = storm.checkStormHazard()
+            hazardNum = lvlToNum.get(hazardLvl)
+            if hazardNum > greatestHazardNum:
+                greatestHazardNum = hazardNum
 
             buoyIdx += 1
+        
+        hazardLvl = numToLvl.get(greatestHazardNum)
 
         return hazardLvl
 
@@ -871,12 +879,22 @@ class UserInterface():
         windDeviation = Main.getStdDeviation_FromData(windData)
 
         buoyIdx = 0
-        while buoyIdx < len(buoysList) and hazardLvl == "low":
+        hazardNum = 0
+        greatestHazardNum = 0
+        lvlToNum = {"low":0, "medium":1, "high":2}  
+        numToLvl = {0:"low", 1:"medium", 2:"high"}
+
+        while buoyIdx < len(buoysList):
             buoy = buoysList[buoyIdx]
             kingTide = KingTideDetermination(buoy, prevData, tideDeviation, windDeviation)
             hazardLvl = kingTide.checkTidalHazard()
-            
-            buoyIdx += 1    
+            hazardNum = lvlToNum.get(hazardLvl)
+            if hazardNum > greatestHazardNum:
+                greatestHazardNum = hazardNum
+
+            buoyIdx += 1
+        
+        hazardLvl = numToLvl.get(greatestHazardNum)
 
         return hazardLvl
 
