@@ -446,9 +446,9 @@ class StormDetermination():
         return liftedIndex
 
     def calculatePressureTendency(self, pastAirPressure, currentAirPressure):
-        timeDifference = 3 #Given that Saibai Island needs regular data, the time difference is restricted to 3 hours between air pressure measurements being sent.
+        #Given that Saibai Island needs regular data, the time difference is restricted to 3 hours between air pressure measurements being sent.
         #Use formula: pt = (p2 - p1) / (t2 - t1)
-        pressureTendency = (currentAirPressure - pastAirPressure) / timeDifference
+        pressureTendency = currentAirPressure - pastAirPressure
         return pressureTendency
 
     def calculateWindSheer(self, groundWindSpeed):
