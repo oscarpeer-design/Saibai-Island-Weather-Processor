@@ -460,16 +460,17 @@ class StormDetermination():
         elevation = 500 #we can determine the wind speed at height 500m above sea level
         alpha = 0.15 #This value is empirically determined, and sits between 0.1 and 0.2.
         elevatedWindSpeed = groundWindSpeed * math.pow( (elevation / referenceHeight), alpha)
-        windSheer = (elevatedWindSpeed - groundWindSpeed) / elevation
+        windSheer = (elevatedWindSpeed - groundWindSpeed) / (elevation - referenceHeight)
         
         return windSheer
 
     def determineStormLikelihood(self, dewPoint, liftedIndex, pressureTendency, windShear):
         #Here we combine measurements of dew point, lifted index, pressure tendency, and wind shear to heuristically determine the relative probability of a storm.
         stormLikelihood = ""
-        if dewPoint > 70 and liftedIndex < -6.7 and pressureTendency > 2 and windShear > 20:
+        print(windShear)
+        if dewPoint > 70 and liftedIndex < -6.7 and pressureTendency > 2 and windShear > 0.02:
             stormLikelihood = "high"
-        elif dewPoint > 60 and liftedIndex < -3.3 and pressureTendency > 1 or windShear > 10:
+        elif dewPoint > 60 and liftedIndex < -3.3 and pressureTendency > 1 or windShear > 0.01:
             stormLikelihood = "moderate"
         else: 
             stormLikelihood = "low"
