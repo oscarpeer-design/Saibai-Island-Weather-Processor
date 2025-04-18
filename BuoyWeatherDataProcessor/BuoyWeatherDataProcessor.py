@@ -468,9 +468,9 @@ class StormDetermination():
         #Here we combine measurements of dew point, lifted index, pressure tendency, and wind shear to heuristically determine the relative probability of a storm.
         stormLikelihood = ""
         print(windShear)
-        if dewPoint > 70 and liftedIndex < -6.7 and pressureTendency > 2 and windShear > 0.02:
+        if dewPoint > 21 and liftedIndex < -6.7 and pressureTendency < -2 and windShear > 0.02:
             stormLikelihood = "high"
-        elif dewPoint > 60 and liftedIndex < -3.3 and pressureTendency > 1 or windShear > 0.01:
+        elif dewPoint > 18 and liftedIndex < -3.3 and pressureTendency < -1 or windShear > 0.01:
             stormLikelihood = "moderate"
         else: 
             stormLikelihood = "low"
