@@ -470,7 +470,7 @@ class StormDetermination():
         print(windShear)
         if dewPoint > 21 and liftedIndex < -6.7 and pressureTendency < -2 and windShear > 0.02:
             stormLikelihood = "high"
-        elif dewPoint > 18 and liftedIndex < -3.3 and pressureTendency < -1 or windShear > 0.01:
+        elif dewPoint > 16 and liftedIndex < -3.3 and pressureTendency < -1 or windShear > 0.01:
             stormLikelihood = "moderate"
         else: 
             stormLikelihood = "low"
@@ -880,6 +880,14 @@ class UserInterface():
 
         return hazardLvl
 
+    def getWarning(self, hazardLvl):
+        warning = ""
+        if hazardLvl == "moderate":
+            warning = "Stay inside and away from the beach."
+        elif hazardLvl == "high":
+            warning = "Stay inside and wait for possible evacuation information."
+        return warning
+
     def hazardWarning(self, Main, listbox, hazardChosen):
         self.clearListBox(listbox)
 
@@ -900,6 +908,11 @@ class UserInterface():
         output = "Probability of " + hazardChosen + ": " + hazardLvl
         pos += 1
         listbox.insert(pos, output)
+
+        warningMsg = self.getWarning(hazardLvl)
+        pos += 1
+        listbox.insert(pos, warningMsg)
+        window.update()
 
     def getUnit(self, measurementName):
         #If a piece of data doesn't have a unit, an empty string is returned
