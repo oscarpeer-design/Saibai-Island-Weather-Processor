@@ -441,7 +441,8 @@ class StormDetermination():
 
         malr = 6 #This is an estimate for the moist adiabatic lapse rate, the rate (in degrees/km) at which air cools as it rises above the LCL.
         maxAlt = 5.5 #The temperature of the air parcel at approximately 5.5km needs to be determined.
-        deltaT = (maxAlt - lcl) * (lcl / 1000)#measure the change in temperature above the LCL
+        lcl /= 1000
+        deltaT = (maxAlt - lcl) * lcl#measure the change in temperature above the LCL
         parcelTemp = seaLvlTemp - deltaT 
 
         liftedIndex = parcelTemp - seaLvlTemp
