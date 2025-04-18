@@ -12,11 +12,10 @@ screenWidth = int(window.winfo_screenwidth())
 screenHeight = int(window.winfo_screenheight())
 canv = Canvas(window, width = screenWidth, height = screenHeight, bg = "#7dd0b6")
 canv.pack()
-#The above global variables define the window and canvas, on which the user interface will be displayed.
+
 class Buoy():
 
     def __init__(self):
-        #These are all values that our data buoys will track, as part of our proposed design solution.
         __buoyNum = 0
         __location = ""
         __waveHeight = 0
@@ -73,7 +72,6 @@ class Buoy():
         return dataItems
 
     def getLocationComponents(self, strLocation):
-        #This breaks down a geographic location value into a list containing latitude and longitude
         location = []
         charIdx = 0
         while charIdx< len(strLocation):
@@ -238,7 +236,6 @@ class ReadFromBuoys():
         return currentBuoys
 
     def getDictCurrentData(self, currentBuoysList):
-        #This creates a dictionary of data that encompasses the measurements of all buoys.
         currentData = {}
         statNamesTuple = Buoy().statNamesTuple
         for statName in statNamesTuple:
@@ -345,7 +342,6 @@ class BuoyWeatherProcessor():
         return z_score
 
     def calculateMedian(self, data):
-        #This calculates the median of a list of data.
         data.sort()
         
         medianIdx = 0
@@ -412,7 +408,7 @@ class BuoyWeatherProcessor():
 
 class StormDetermination():
     
-    def __init__(self, buoy): #The buoy parameter is the value of an individual buoy's measurements of current data.
+    def __init__(self, buoy):
         self.airTemp = buoy.getAirTemp()
         self.humidity = buoy.getHumidity()
         self.windSpeed = buoy.getWindSpeed()
@@ -441,11 +437,12 @@ class StormDetermination():
 
         malr = 6 #This is an estimate for the moist adiabatic lapse rate, the rate (in degrees/km) at which air cools as it rises above the LCL.
         maxAlt = 5.5 #The temperature of the air parcel at approximately 5.5km needs to be determined.
-        lcl /= 1000
-        deltaT = (maxAlt - lcl) * lcl#measure the change in temperature above the LCL
+        lcl/= 1000
+        t500 = -10 #This is the estimated temperature at 5500m above sea level
+        deltaT = (maxAlt - lcl) * malr#measure the change in temperature above the LCL
         parcelTemp = seaLvlTemp - deltaT 
 
-        liftedIndex = parcelTemp - seaLvlTemp
+        liftedIndex = t500 - parcelTemp
         return liftedIndex
 
     def calculatePressureTendency(self, pastAirPressure, currentAirPressure):
@@ -480,8 +477,6 @@ class StormDetermination():
         return stormLikelihood
 
     def checkStormHazard(self):
-        #This method determines the likelihood of a storm occurring from air temperature, air pressure, and wind speed values. 
-        #The only precondition is that an object of class StormDetermination has been created.
         airTemp = self.airTemp
         humidity = self.humidity
         pastAirPressure = self.pastAirPressure
@@ -499,8 +494,6 @@ class StormDetermination():
 class KingTideDetermination():
 
     def __init__(self, currentMeasurements, prevMeasurements, tideDeviation, windDeviation):
-        #The precondition is that the standard deviation in tidal height and wind speed has been determined.
-        #The parameter currentMeasurements represents a buoy's current data, while prevMeasurements represents previous seasonal averages.
         self.seasonalTideHeight = prevMeasurements.getWaveHeight()
         self.measuredTideHeight = currentMeasurements.getWaveHeight()
         self.tideDeviation = tideDeviation
@@ -513,8 +506,6 @@ class KingTideDetermination():
         self.SaibaiLocation = ("-9.3999984*S","142.6833306*E")
 
     def getLatitudeAndLongitude(self, location):
-        #This takes the list of [latitude, longitude] determined in the Buoy() class and extracts the values
-        #for latitude and longitude from the two strings.
         degSouth = location[0]
         degEast = location[1]
 
@@ -555,9 +546,6 @@ class KingTideDetermination():
         return generalDirection
 
     def checkCharInString(self, charToFind, string):
-        #This method is used to help determine if the wind is blowing in the general direction of Saibai Island.
-        #For example if the direction from the buoy to the island is NW, and the wind direction is WNW, then the
-        #method will return True.
         charInside = False
         for char in string:
             if char == charToFind:
@@ -565,7 +553,6 @@ class KingTideDetermination():
         return charInside
 
     def checkWindDirection(self, windDir, directionToIsland):
-        #This method checks if the wind is pointing towards the island.
         pointingToIsland = False
 
         if directionToIsland == windDir:
@@ -579,27 +566,22 @@ class KingTideDetermination():
         return pointingToIsland
 
     def checkHighTide(self, tideHeight, pastTideHeight, tideDeviation):
-        #This determines if the tide is unusually high, with a z-score greater than 0.5.
         highTide = False
         processor = BuoyWeatherProcessor()
         zScore = processor.determineZScore(tideHeight, pastTideHeight, tideDeviation)
-        if zScore > 0.5:
+        if zScore > 1:
             highTide = True
         return highTide
 
     def checkHighWind(self, windSpeed, pastWindSpeed, windDeviation):
-        #This determines if the wind is unusually fast, with a z-score greater than 1.
         highSpeed = False
         processor = BuoyWeatherProcessor()
         zScore = processor.determineZScore(windSpeed, pastWindSpeed, windDeviation)
-        if zScore > 1:
+        if zScore > 0.5:
             highSpeed = True
         return highSpeed
 
     def checkWindOnShore(self, buoyLocation, windDir, windSpeed, pastWindSpeed, windDeviation):
-        #This method determines if there is a high wind blowing towards the island.
-        #A high wind blowing towards Saibai Island can increase the height of waves, exacerbating
-        #any tidal flooding that occurs.
         windOnShore = False
         saibaiLocation = self.SaibaiLocation
         
@@ -619,8 +601,6 @@ class KingTideDetermination():
         return windOnShore
 
     def checkTidalHazard(self):
-        #This method combines wind speed, wind direction, and wave height measurements to determine the likelihood of a storm occurring.
-        #It is a precondition that the standard deviation for wind speed and tidal height have been predetermined.
         hazardLikelihood = ""
         windDir = self.windDir
         windSpeed = self.windSpeed
@@ -644,9 +624,7 @@ class KingTideDetermination():
         return hazardLikelihood
 
 class UserInterface():
-    def __init__(self, Main): 
-        #The Main parameter is an object of the BuoyWeatherProcessor() class that gives the most recent data.
-        #In the __init__ method we initialise our interface.
+    def __init__(self, Main):
         global screenWidth
         global screenHeight
         
@@ -658,9 +636,7 @@ class UserInterface():
         eightHeight = 2 * sixteenHeight
         quarterHeight = 2 * eightHeight
         halfHeight = 2 * quarterHeight
-        #The calculations on lies 652 to 659 determine units of screen width and screen height, which we can use to ensure that the interface
-        #can be displayed with a consistent formatting across multiple devices.
-        
+
         listbox = self.getListBox("Hazard Information \n")
         listbox.place(x = halfWidth, y = eightHeight)
 
@@ -713,8 +689,7 @@ class UserInterface():
         else:
             self.displayPastData(Main, listbox)
 
-    def currentDataWindow(self, Main, listbox): 
-        #This data window pops up when the user decides to click on the "Current Data" button
+    def currentDataWindow(self, Main, listbox):
         startPos = 400
         endPos = 630
         dataWindow = canv.create_rectangle(startPos, startPos, endPos, endPos, fill = "#75BFEC")
@@ -735,15 +710,13 @@ class UserInterface():
         optionsDropDown.place(x = startPos + 50, y = startPos + 100)
 
         btnShowData = self.createButton("Show Current Data")
-        btnShowData.configure(command = lambda: self.showData(optionsDropDown.get(), Main, listbox, windowItems, {"startPos":startPos, "endPos":endPos}))
+        btnShowData.configure(command = lambda: self.showData_AND_CloseWindow(optionsDropDown.get(), Main, listbox, windowItems, {"startPos":startPos, "endPos":endPos}))
         btnShowData.place(x = startPos + 50, y = startPos + 170)
 
-        windowItems = [dataWindow, lblSeasonInfo, btnCloseWindow, lblDataWindow, optionsDropDown, btnShowData] 
-        #This variable contains all the screen elements in the window, so that the window can be created and destroyed whenever the user decides.
+        windowItems = [dataWindow, lblSeasonInfo, btnCloseWindow, lblDataWindow, optionsDropDown, btnShowData]
         btnCloseWindow.configure(command = lambda: self.destroyDataWindow(windowItems))
 
     def destroyDataWindow(self, windowItems):
-        #The way in which interface elements are removed differs, depending on whether they inherit from the Canvas or window class
         for item in windowItems:
             if type(item) == int:
                 canv.delete(item)
@@ -751,8 +724,7 @@ class UserInterface():
                 item.destroy()
         window.update()
 
-    def showData(self, choice, Main, listbox, windowItems, windowCoords):
-        #This creates options for the user to choose which aspects of current data they wish to view.
+    def showData_AND_CloseWindow(self, choice, Main, listbox, windowItems, windowCoords):
         dataToShow = ""
 
         pastData = Main.getPastData()
@@ -818,7 +790,6 @@ class UserInterface():
         return numInputted
 
     def currentData_IndividualBuoy(self, Main, listbox, buoyNum):
-        #This occurs when the user decides to view the data of a certain buoy.
         self.clearListBox(listbox)
 
         buoy = Main.getIndividualBuoy(buoyNum)
@@ -841,7 +812,6 @@ class UserInterface():
         window.update()
 
     def currentData_SpecificMeasurement(self, Main, listbox, measurementChosen):
-        #This occurs when the user decides to view a specific measurement, i.e. air temperature.
         self.clearListBox(listbox)
 
         output = "Current data for " + measurementChosen + "."
@@ -874,7 +844,6 @@ class UserInterface():
         window.update()
 
     def displayStormHazard(self, Main):
-        #This gets the hazard level from the StormDetermination() class, acting as an interface between the UI and backend. 
         hazardLvl = "low"
         buoysList = Main.getBuoysList()
 
@@ -889,8 +858,6 @@ class UserInterface():
         return hazardLvl
 
     def displayTidalHazard(self, Main):
-        #This gets the hazard level from the KingTideDetermination() class, acting as an interface between the UI and backend. 
-        #It also does the processing of standard deviation values that the class needs to predict unusually high tides.
         hazardLvl = "low"
 
         prevData = Main.getPastData()
@@ -913,7 +880,6 @@ class UserInterface():
         return hazardLvl
 
     def hazardWarning(self, Main, listbox, hazardChosen):
-        #The user has decided to view hazard data, on either a Storm Surge, or a King Tide.
         self.clearListBox(listbox)
 
         output = "Hazard Warning \n"
@@ -935,14 +901,13 @@ class UserInterface():
         listbox.insert(pos, output)
 
     def getUnit(self, measurementName):
-        #This gets units for measurements. If a piece of data doesn't have a unit, an empty string is returned
+        #If a piece of data doesn't have a unit, an empty string is returned
         unit = ""
         unitsDict = {"buoyNum":"", "location": "", "waveHeight":"m", "airTemp":"*C", "waterTemp":"*C", "humidity":"%", "rainfall(mm)":"mm", "pastAirPressure":"hpa", "currentAirPressure":"hpa", "windDir":"", "windSpeed":"km/h", "batteryHealth":"%"}
         unit = unitsDict.get(measurementName)
         return unit
 
     def displayPastData(self, Main, listbox):
-        #This displays the previous years' data from a particular season.
         self.clearListBox(listbox)
 
         pastData = Main.getPastData()
